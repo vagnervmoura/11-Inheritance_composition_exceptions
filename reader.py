@@ -1,32 +1,23 @@
-# python .\reader.py source.json json_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.json json_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.json json_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle
 
-# python .\reader.py source.pickle pickle_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.pickle pickle_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.pickle pickle_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-
-# python .\reader.py source.csv csv_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.csv csv_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
-# python .\reader.py source.csv csv_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
 
 import sys
 import csv
 import pickle
 import json
 
+
 class InputArguments:
     def __init__(self, args):
-        self.input_file = args[0]
-        self.output_file = args[1]
-        self.changes = args[2:] if len(args) > 2 else []
+        if len(args) < 3:
+            raise ValueError("Insufficient arguments, Needs at least input_file, output_file, and one change.")
+        self.input_file, self.output_file, *changes = args
         self.changes = [
             (
                 int(a.split(",")[0]),
                 int(a.split(",")[1]),
                 a.split(",")[2]
             )
-            for a in self.changes
+            for a in changes
         ]
 
     def __str__(self):
@@ -41,6 +32,26 @@ class BaseFileHandler:
         self.file_name = file_name
 
 
+#class FileNotFound(BaseFileHandler):
+    def FileNotFound(self):
+        try:
+            if arguments.input_file.endswith(".pickle"):
+                with open(self.file_name, "rb") as f:
+                    pass
+            else:
+                with open(self.file_name, "r") as f:
+                    pass
+        except FileNotFoundError:
+            print(f"WARNING, File '{self.file_name}' not found. Creating a new one with name '{self.file_name}'.")
+            content = []
+            self.write(content)
+            return content
+        except Exception as e:
+            print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
+            sys.exit()
+        return [] # Return an empty list if file reading fails
+
+
 class PickleFileHandler(BaseFileHandler):
     def read(self):
         try:
@@ -48,13 +59,7 @@ class PickleFileHandler(BaseFileHandler):
                 content = pickle.load(f)
             return content
         except FileNotFoundError:
-            print(f"WARNING: File {self.file_name} not found. Creating a new one with name {self.file_name}.")
-            content = []
-            self.write(content)
-            return content
-        except Exception as e:
-            print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
-            sys.exit()
+            return self.FileNotFound()
 
     def write(self, content):
         with open(self.file_name, "wb") as f:
@@ -63,12 +68,12 @@ class PickleFileHandler(BaseFileHandler):
 
 class CSVFileHandler(BaseFileHandler):
     def read(self):
-        with open(self.file_name, "a") as f:
-            pass
-
-        with open(self.file_name, "r") as f:
-            content = list(csv.reader(f))
-        return content
+        try:
+            with open(self.file_name, "r") as f:
+                content = list(csv.reader(f))
+            return content
+        except FileNotFoundError:
+            return self.FileNotFound()
 
     def write(self, content):
         with open(self.file_name, "a") as f:
@@ -85,18 +90,11 @@ class JSONFileHandler(BaseFileHandler):
                 content = json.load(f)
             return content
         except FileNotFoundError:
-            print(f"WARNING, File {self.file_name} not found. Creating a new one with name {self.file_name}.")
-            content = []
-            self.write(content)
-            return content
-        except Exception as e:
-            print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
-            sys.exit()
+            return self.FileNotFound()
 
     def write(self, content):
         with open(self.file_name, "w") as f:
             json.dump(content, f)
-
 
 
 def change_content(content, changes):
@@ -145,7 +143,8 @@ if __name__ == "__main__":
     elif arguments.output_file.endswith(".json"):
         output_file_handler = JSONFileHandler
     else:
-        raise NotImplementedError("Program handles only PICKLE, CSV and JSON files.")
+        print("ERROR: Program handles only PICKLE, CSV and JSON files.")
+        sys.exit()
 
     print(arguments)
 
