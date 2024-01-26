@@ -1,5 +1,4 @@
-
-
+import os.path
 import sys
 import csv
 import pickle
@@ -31,8 +30,6 @@ class BaseFileHandler:
     def __init__(self, file_name):
         self.file_name = file_name
 
-
-#class FileNotFound(BaseFileHandler):
     def FileNotFound(self):
         try:
             if arguments.input_file.endswith(".pickle"):
@@ -42,7 +39,8 @@ class BaseFileHandler:
                 with open(self.file_name, "r") as f:
                     pass
         except FileNotFoundError:
-            print(f"WARNING, File '{self.file_name}' not found. Creating a new one with name '{self.file_name}'.")
+            print(f"WARNING, File '{self.file_name}' not found. \nCreating a new one with name '{self.file_name}'.")
+            self.list_files_in_directory() # If file not found, List all files on directory.
             content = []
             self.write(content)
             return content
@@ -50,6 +48,18 @@ class BaseFileHandler:
             print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
             sys.exit()
         return [] # Return an empty list if file reading fails
+
+    def list_files_in_directory(self):
+        concurrent_directory = os.path.dirname(os.path.abspath(__file__))
+        files_in_directory = [
+                                f for f in os.listdir(concurrent_directory)
+                                if os.path.isfile(os.path.join(concurrent_directory, f))
+                             ]
+        print("\n"+"*"*100)
+        print("Files in the same directory:\n")
+        for file in files_in_directory:
+            print("*"+" "*5 + file)
+        print("*" * 100 + "\n")
 
 
 class PickleFileHandler(BaseFileHandler):
@@ -153,8 +163,8 @@ if __name__ == "__main__":
 
     content = input_file_handler.read()
 
-    print(f"BEFORE: {content}")
+    print(f"{input_file_handler.file_name} file: \n{content}")
     content = change_content(content, arguments.changes)
-    print(f"AFTER: {content}")
+    print(f"{output_file_handler.file_name} file: \n{content}")
 
     output_file_handler.write(content)
