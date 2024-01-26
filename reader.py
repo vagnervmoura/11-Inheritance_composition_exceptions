@@ -37,13 +37,18 @@ class BaseFileHandler:
 
 class PickleFileHandler(BaseFileHandler):
     def read(self):
-        with open(self.file_name, "ab") as f:
-            pass
-
-        with open(self.file_name, "rb") as f:
-            print("Teste")
-            content = pickle.load(f)
-        return content
+        try:
+            with open(self.file_name, "rb") as f:
+                content = pickle.load(f)
+            return content
+        except FileNotFoundError:
+            print(f"WARNING: File {self.file_name} not found. Creating a new one with name {self.file_name}.")
+            content = []
+            self.write(content)
+            return content
+        except Exception as e:
+            print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
+            sys.exit()
 
     def write(self, content):
         #with open(self.file_name, "ab") as f:
@@ -82,39 +87,13 @@ def change_content(content, changes):
             x, y, v = map(int, change.split(","))
 
         while len(content) <= y:
-            content.append([])  # Adiciona novas linhas, se necessário
+            content.append([])  # Add new rows if necessary
 
         while len(content[y]) <= x:
-            content[y].append(None)  # Adiciona novos elementos na linha, se necessário
+            content[y].append(None)  # Add new elements on row, if necessary
 
         content[y][x] = v
 
-
-    #for change in changes:
-    #    x, y, v = map(int, change.split(","))
-    #
-    #    while len(content) <= y:
-    #        content.append([])  # Adiciona novas linhas, se necessário
-    #
-    #    while len(content[y]) <= x:
-    #        content[y].append(None)  # Adiciona novos elementos na linha, se necessário
-    #
-    #    content[y][x] = v
-
-
-    #for(x, y, v) in changes:
-    #    while len(content) <= x:
-    #        content.append([]) # Add new rows if necessary
-    #
-    #    while len(content[x]) <= y:
-    #        content[x].append(None) # Add new elements on row, if necessary
-    #
-    #    content[x][y] = v
-
-        #if 0 <= x < len(content) and 0 <= y < len(content[x]):
-        #    content[x][y] = v
-        #else:
-        #    print(f"WARNING: Ignored change at ({x}, {y}, {v}). Index out of range.")
     return content
 
 if __name__ == "__main__":
