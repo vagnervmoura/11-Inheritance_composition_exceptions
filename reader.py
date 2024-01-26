@@ -1,13 +1,19 @@
-# python reader.py in.csv out.json 1,1,cat 0,1,dog 2,1,bread
-# python reader.py in.lsk out.lsk 1,1,cat 0,1,dog 2,1,bread
-# python reader.py in.lsk out2.pickle 1,1,cat 0,1,dog 2,1,bread
-# python reader.py in.lsk out2.lsk 1,1,cat 0,1,dog 2,1,bread
-# python reader.py in.lsk out3.pickle 1,1,cat 0,1,dog 2,1,bread
-# python reader.py in.lsk out3.pickle 1,1,cat 0,1,dog 2,1000,bread   ----   This one will make error, try to create exceptions for this in change_content
+# python .\reader.py source.json json_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.json json_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.json json_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle
+
+# python .\reader.py source.pickle pickle_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.pickle pickle_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.pickle pickle_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+
+# python .\reader.py source.csv csv_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.csv csv_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.csv csv_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
 
 import sys
 import csv
 import pickle
+import json
 
 class InputArguments:
     def __init__(self, args):
@@ -51,9 +57,6 @@ class PickleFileHandler(BaseFileHandler):
             sys.exit()
 
     def write(self, content):
-        #with open(self.file_name, "ab") as f:
-        #    pass
-
         with open(self.file_name, "wb") as f:
             pickle.dump(content, f)
 
@@ -76,7 +79,24 @@ class CSVFileHandler(BaseFileHandler):
 
 
 class JSONFileHandler(BaseFileHandler):
-    pass
+    def read(self):
+        try:
+            with open(self.file_name, "r") as f:
+                content = json.load(f)
+            return content
+        except FileNotFoundError:
+            print(f"WARNING, File {self.file_name} not found. Creating a new one with name {self.file_name}.")
+            content = []
+            self.write(content)
+            return content
+        except Exception as e:
+            print(f"ERROR: Failed to read file {self.file_name}. Exception: {e}")
+            sys.exit()
+
+    def write(self, content):
+        with open(self.file_name, "w") as f:
+            json.dump(content, f)
+
 
 
 def change_content(content, changes):
