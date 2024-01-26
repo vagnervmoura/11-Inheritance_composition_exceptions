@@ -1,3 +1,15 @@
+# python .\reader.py source.json json_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.json json_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.json json_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+
+# python .\reader.py source.pickle pickle_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.pickle pickle_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.pickle pickle_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+
+# python .\reader.py source.csv csv_to.csv "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.csv csv_to.pickle "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+# python .\reader.py source.csv csv_to.json "1,0,piano" "1,1,mug" "3,4,csv" "0,1,json" "3,3,pickle"
+
 import os.path
 import sys
 import csv
