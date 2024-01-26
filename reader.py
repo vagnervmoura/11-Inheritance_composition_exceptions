@@ -67,11 +67,15 @@ class PickleFileHandler(BaseFileHandler):
         try:
             with open(self.file_name, "rb") as f:
                 content = pickle.load(f)
-            return content
+            return content if isinstance(content, list) else []
         except FileNotFoundError:
             return self.FileNotFound()
 
     def write(self, content):
+        if not isinstance(content, list):
+            print("ERROR: Content must be a list of lists.")
+            return
+
         with open(self.file_name, "wb") as f:
             pickle.dump(content, f)
 
@@ -98,11 +102,15 @@ class JSONFileHandler(BaseFileHandler):
         try:
             with open(self.file_name, "r") as f:
                 content = json.load(f)
-            return content
+            return content if isinstance(content, list) else []
         except FileNotFoundError:
             return self.FileNotFound()
 
     def write(self, content):
+        if not isinstance(content, list):
+            print("ERROR: Content must be a list of lists.")
+            return
+
         with open(self.file_name, "w") as f:
             json.dump(content, f)
 
