@@ -75,11 +75,46 @@ class JSONFileHandler(BaseFileHandler):
 
 
 def change_content(content, changes):
-    for(x, y, v) in changes:
-        if 0 <= x < len(content) and 0 <= y < len(content[x]):
-            content[x][y] = v
+    for change in changes:
+        if isinstance(change, tuple):
+            x, y, v = change
         else:
-            print(f"WARNING: Ignored change at ({x}, {y}, {v}). Index out of range.")
+            x, y, v = map(int, change.split(","))
+
+        while len(content) <= y:
+            content.append([])  # Adiciona novas linhas, se necessário
+
+        while len(content[y]) <= x:
+            content[y].append(None)  # Adiciona novos elementos na linha, se necessário
+
+        content[y][x] = v
+
+
+    #for change in changes:
+    #    x, y, v = map(int, change.split(","))
+    #
+    #    while len(content) <= y:
+    #        content.append([])  # Adiciona novas linhas, se necessário
+    #
+    #    while len(content[y]) <= x:
+    #        content[y].append(None)  # Adiciona novos elementos na linha, se necessário
+    #
+    #    content[y][x] = v
+
+
+    #for(x, y, v) in changes:
+    #    while len(content) <= x:
+    #        content.append([]) # Add new rows if necessary
+    #
+    #    while len(content[x]) <= y:
+    #        content[x].append(None) # Add new elements on row, if necessary
+    #
+    #    content[x][y] = v
+
+        #if 0 <= x < len(content) and 0 <= y < len(content[x]):
+        #    content[x][y] = v
+        #else:
+        #    print(f"WARNING: Ignored change at ({x}, {y}, {v}). Index out of range.")
     return content
 
 if __name__ == "__main__":
